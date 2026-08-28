@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storage-Node Earnings-Dashboard – 24/7 Verdienst-Rechner</title>
+<style>
+  :root{
+    --bg:#0e1017;--bg2:#141824;--card:#161c2a;--card2:#121724;--line:#26304a;
+    --text:#e7ecf5;--muted:#9aa6bd;--muted2:#6b7899;
+    --cyan:#25d0c0;--blue:#5b8cff;--violet:#7c5cff;--green:#31d07a;--amber:#f5b73d;--red:#ff5d6c;
+    --greenbg:rgba(49,208,122,.14);--amberbg:rgba(245,183,61,.14);--redbg:rgba(255,93,108,.14);--cyanbg:rgba(37,208,192,.14);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#1a2036,transparent),var(--bg);
+    color:var(--text);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+  .hero .eyebrow{color:var(--cyan);font-weight:700;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+  h1{font-size:30px;margin:6px 0 6px;letter-spacing:-.02em}
+  h1 .gpu{color:var(--cyan)}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 14px;max-width:820px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--muted)}
+  .chip b{color:var(--text)}
+  h2{font-size:20px;margin:26px 0 12px;display:flex;align-items:center;gap:9px}
+  h2 .ic{font-size:20px}
+  h3{font-size:15px;margin:18px 0 8px;color:var(--text)}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:18px}
+  .note{background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:13px 15px;color:var(--muted);font-size:13.5px;margin:14px 0}
+  .src{color:var(--muted2);font-size:12px}
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .kpi{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .label{color:var(--muted);font-size:12.5px;font-weight:600}
+  .kpi .val{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+  .kpi .foot{margin-top:6px;font-size:12px;color:var(--muted2)}
+  /* Calculator */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .calc .inputs .row{margin-bottom:14px}
+  .calc label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:5px}
+  .calc .rng{display:flex;align-items:center;gap:10px}
+  input[type=range]{flex:1;accent-color:var(--cyan)}
+  input[type=number],select{background:#0d111b;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;width:100%}
+  .calc .out{background:linear-gradient(135deg,rgba(37,208,192,.12),rgba(91,140,255,.06));border:1px solid var(--line);border-radius:12px;padding:18px}
+  .bignum{font-size:40px;font-weight:800;letter-spacing:-.02em;margin:2px 0}
+  .bignum small{font-size:16px;color:var(--muted);font-weight:600}
+  .outrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .outrow:last-child{border-bottom:0}
+  .outrow .v{font-weight:700}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+  .p-easy{background:var(--greenbg);color:var(--green)}
+  .p-mid{background:var(--amberbg);color:var(--amber)}
+  .p-hard{background:var(--redbg);color:var(--red)}
+  /* Table */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--bg2);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .plat{font-weight:700}
+  .na{color:var(--muted2)}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .trend{font-weight:700}.t-up{color:var(--green)}.t-down{color:var(--red)}.t-flat{color:var(--muted)}
+  footer{margin-top:34px;color:var(--muted2);font-size:12px;border-top:1px solid var(--line);padding-top:16px}
+  @media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">DePIN · Storage-Node · Verdienst-Analyse</div>
+    <h1>💾 Storage-Node <span class="gpu">Earnings-Dashboard</span></h1>
+    <p class="sub">Wie viel verdient ein <b>24/7-Storage-Node</b> im Monat? Interaktiver Rechner + ehrlicher Marktvergleich
+      (Storj, Sia, Filecoin, Arweave, Impossible Cloud) – abgestimmt auf deinen geplanten Aufbau.</p>
+    <div class="meta">
+      <span class="chip">🖥️ Hardware: <b>4× 16 TB Seagate Exos = 64 TB</b></span>
+      <span class="chip">⏱️ Betrieb: <b>24/7</b></span>
+      <span class="chip">⚡ Verbrauch: <b>~70 W</b></span>
+      <span class="chip">☀️ Strom: <b>0 €/kWh (PV)</b></span>
+      <span class="chip">🗓️ Datenstand: <b id="datestamp">–</b></span>
+      <span class="chip">💱 FX: <b>1 $ ≈ 0,92 €</b></span>
+    </div>
+  </header>
+
+  <!-- KURZFAZIT -->
+  <div class="card" style="border-left:5px solid var(--amber);margin-top:16px">
+    <div style="display:inline-block;background:var(--amberbg);color:var(--amber);font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px">⏳ REALISTISCH EINORDNEN</div>
+    <h2 style="margin:12px 0 6px">Kurzfazit – was heißt das für dich?</h2>
+    <p style="margin:0 0 12px;color:var(--muted);font-size:15px">
+      Storage-Nodes verdienen <b>bescheiden</b> und <b>langsam</b>: Bezahlt wird nur der <b>tatsächlich belegte</b> Speicher,
+      und der Node <b>füllt sich langsam</b> (oft 1–2 TB/Monat). Deine 64 TB sind also erst nach <b>~2–4 Jahren</b> voll.
+      <b>Storj</b> ist das einzige wirklich einfache Consumer-Modell. Dein 0-€-PV-Strom ist der entscheidende Vorteil.
+    </p>
+    <div class="kpis">
+      <div class="kpi"><div class="label">💶 Realistisch Jahr 1 (~25 % voll)</div><div class="val">~<span id="kf-y1">24</span> €<span style="font-size:13px;color:var(--muted)">/Mon</span></div><div class="foot">Storj, netto (0 € Strom)</div></div>
+      <div class="kpi"><div class="label">💶 Node voll (64 TB, Ziel)</div><div class="val">~<span id="kf-full">97</span> €<span style="font-size:13px;color:var(--muted)">/Mon</span></div><div class="foot">Storj, netto – erst nach Jahren</div></div>
+      <div class="kpi"><div class="label">⏳ Bis voll (bei ~1,5 TB/Mon)</div><div class="val">~3,5<span style="font-size:13px;color:var(--muted)"> Jahre</span></div><div class="foot">Ingress füllt langsam</div></div>
+      <div class="kpi"><div class="label">⚡ Stromkosten (bei dir)</div><div class="val">0 €<span style="font-size:13px;color:var(--muted)">/Mon</span></div><div class="foot">PV = größter Hebel</div></div>
+    </div>
+  </div>
+
+  <!-- RECHNER -->
+  <h2><span class="ic">🧮</span> Verdienst-Rechner (Storj, realistisch)</h2>
+  <div class="card">
+    <div class="calc">
+      <div class="inputs">
+        <div class="row">
+          <label>Speicher-Kapazität: <b><span id="l-cap">64</span> TB</b></label>
+          <div class="rng"><input type="range" id="i-cap" min="4" max="200" step="2" value="64"><input type="number" id="n-cap" min="1" max="500" value="64" style="width:90px"></div>
+        </div>
+        <div class="row">
+          <label>Davon belegt: <b><span id="l-fill">25</span> %</b> (<span id="l-stored">16,0</span> TB) <span class="src">– füllt sich mit der Zeit</span></label>
+          <div class="rng"><input type="range" id="i-fill" min="0" max="100" step="1" value="25"></div>
+        </div>
+        <div class="row">
+          <label>Monatlicher Egress (Downloads): <b><span id="l-egr">8</span> %</b> <span class="src">der belegten Daten/Monat</span></label>
+          <div class="rng"><input type="range" id="i-egr" min="0" max="50" step="1" value="8"></div>
+        </div>
+        <div class="row">
+          <label>Leistungsaufnahme (24/7)</label>
+          <div class="rng"><input type="range" id="i-pow" min="10" max="250" step="5" value="70"><input type="number" id="n-pow" min="0" max="1000" value="70" style="width:90px"><span class="src">W</span></div>
+        </div>
+        <div class="row">
+          <label>Strompreis</label>
+          <div class="rng"><input type="number" id="n-elec" min="0" max="2" step="0.01" value="0" style="width:110px"><span class="src">€/kWh · bei dir 0 (PV)</span></div>
+        </div>
+      </div>
+      <div class="out">
+        <div class="src">Geschätzter Netto-Verdienst (Storj)</div>
+        <div class="bignum"><span id="o-net">24</span> € <small>/ Monat</small></div>
+        <div class="outrow"><span>Speicher-Vergütung ($1,50/TB·Mon)</span><span class="v" id="o-storage">$24,00</span></div>
+        <div class="outrow"><span>Egress-Vergütung ($2,00/TB)</span><span class="v" id="o-egress">$2,56</span></div>
+        <div class="outrow"><span>Brutto</span><span class="v" id="o-gross">≈ 24,44 €</span></div>
+        <div class="outrow"><span>Stromkosten</span><span class="v" id="o-power">− 0,00 €</span></div>
+        <div class="outrow"><span><b>Netto / Monat</b></span><span class="v" id="o-net2">≈ 24,44 €</span></div>
+        <div class="outrow"><span><b>Netto / Jahr</b></span><span class="v" id="o-year">≈ 293 €</span></div>
+        <div class="src" style="margin-top:8px">Hinweis: In den ersten ~9–15 Monaten hält Storj einen Teil zurück („Held Amount"). Zahlen = gerundet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KURSE -->
+  <h2><span class="ic">🪙</span> Token-Kurse (Live, täglich aktualisiert)</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="label">STORJ</div><div class="val" id="k-storj">–</div><div class="foot" id="k-storj-d">Auszahlung Storj (USD-fix)</div></div>
+    <div class="kpi"><div class="label">Siacoin (SC)</div><div class="val" id="k-sia">–</div><div class="foot" id="k-sia-d">Sia-Host-Auszahlung</div></div>
+    <div class="kpi"><div class="label">Filecoin (FIL)</div><div class="val" id="k-fil">–</div><div class="foot" id="k-fil-d">Filecoin-Reward</div></div>
+    <div class="kpi"><div class="label">Arweave (AR)</div><div class="val" id="k-ar">–</div><div class="foot" id="k-ar-d">Arweave-Endowment</div></div>
+  </div>
+  <div class="note">Bei <b>Storj</b> ist die Vergütung in <b>USD festgelegt</b> ($1,50/TB Speicher, $2/TB Egress) und wird in STORJ-Token ausgezahlt – der Token-Kurs beeinflusst also nur, wie viele Token du erhältst, nicht den USD-Wert. Bei <b>Sia/Filecoin/Arweave</b> verdienst du direkt im (volatilen) Token → Kurs = Risiko.</div>
+
+  <!-- VERGLEICH -->
+  <h2><span class="ic">📊</span> Netzwerk-Vergleich · Eignung für einen Consumer-24/7-Node</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>Netzwerk</th><th>Verdienst-Modell</th><th class="num">Effektiv $/TB·Mon*</th><th>Auszahlung</th><th>Aufwand/Hürde</th><th>Eignung</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="plat">Storj</td>
+          <td>Miete: $1,50/TB Speicher + $2/TB Egress (nur belegte Daten)</td>
+          <td class="num">~1,50–3,00</td>
+          <td>STORJ (USD-fix)</td>
+          <td>Sehr einfach: Docker-Node, 1 IP, füllt langsam</td>
+          <td><span class="pill p-easy">✅ Ideal</span></td>
+        </tr>
+        <tr>
+          <td class="plat">Sia (renterd Host)</td>
+          <td>Du setzt Speicherpreis + Collateral; Miete nach Nachfrage</td>
+          <td class="num">~1,00–3,00</td>
+          <td>SC (volatil)</td>
+          <td>Mittel: Collateral in SC nötig, Preis-Management, geringe Auslastung</td>
+          <td><span class="pill p-mid">⚠️ Machbar</span></td>
+        </tr>
+        <tr>
+          <td class="plat">Filecoin (SP)</td>
+          <td>Block-Rewards + Deals; „Sealing" der Daten nötig</td>
+          <td class="num">~0–1 (netto)</td>
+          <td>FIL (volatil)</td>
+          <td>Hoch: Sealing-Hardware (CPU/GPU/RAM), FIL-Collateral, Enterprise-Setup</td>
+          <td><span class="pill p-hard">❌ Enterprise</span></td>
+        </tr>
+        <tr>
+          <td class="plat">Arweave</td>
+          <td>Einmalzahlung für <b>permanente</b> Speicherung (Endowment) – kein Monatsmodell</td>
+          <td class="num">n/v</td>
+          <td>AR (volatil)</td>
+          <td>Hoch: Miner speichert den kompletten „Weave" (200 TB+), anderes Modell</td>
+          <td><span class="pill p-hard">❌ Anderes Modell</span></td>
+        </tr>
+        <tr>
+          <td class="plat">Impossible Cloud (ICN)</td>
+          <td>Enterprise-„HyperNodes" mit SLA + Staking</td>
+          <td class="num">n/v</td>
+          <td>ICNT + Fiat</td>
+          <td>Hoch: Rechenzentrums-Grade Hardware/SLA, Staking, Whitelisting</td>
+          <td><span class="pill p-hard">❌ Enterprise</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">*Effektive Bruttorate pro <b>tatsächlich belegtem</b> TB und Monat (grobe Spanne, 2026). Für einen 24/7-Consumer-Node zuhause ist <b>Storj</b> praktisch die einzige plug-and-play-Option; Sia geht mit etwas Einarbeitung. Filecoin/Arweave/ICN sind Enterprise- bzw. andere Modelle.</div>
+
+  <!-- CHART -->
+  <h2><span class="ic">📈</span> Token-Kurs-Verlauf (indexiert = 100 am Start)</h2>
+  <div class="card">
+    <div class="src" id="trend-src" style="margin-bottom:10px">Tägliche Snapshots. Alle Token auf 100 normiert, damit sie trotz sehr unterschiedlicher Preise vergleichbar sind.</div>
+    <div id="trend-chart"><div class="src">Chart wird geladen…</div></div>
+    <div class="legend" id="trend-legend"></div>
+  </div>
+
+  <!-- HINWEISE -->
+  <h2><span class="ic">📝</span> Wichtige Hinweise (ehrlich gerechnet)</h2>
+  <div class="note" style="border-left-color:var(--cyan)">
+    <b>1. Der Node füllt sich langsam.</b> Storj bezahlt nur <b>belegten</b> Speicher. Realistischer Netto-Zuwachs ~1–2 TB/Monat →
+    64 TB sind erst nach <b>2–4 Jahren</b> voll. Rechne im ersten Jahr eher mit dem „~25 % voll"-Wert oben.<br>
+    <b>2. Held Amount.</b> Storj hält in den ersten ~9–15 Monaten einen Teil der Auszahlung zurück (wird später ausgezahlt).<br>
+    <b>3. Anforderungen.</b> Storj will hohe Uptime (&gt;99 %), stabile Bandbreite und ausreichend Upload. Bei Disqualifikation drohen Datenverlust/Neustart.<br>
+    <b>4. Mehrere Festplatten = mehrere Nodes.</b> Best Practice: <b>1 HDD = 1 Node</b> (kein RAID für Storj) – so skaliert Ingress und Ausfälle betreffen nur eine Platte.<br>
+    <b>5. PV ist entscheidend.</b> Bei Netzstrom (0,30 €/kWh) kostet der Node ~15 €/Mon – das frisst bei niedriger Belegung fast den ganzen Gewinn. Dein 0-€-Strom macht das Projekt erst attraktiv.
+  </div>
+
+  <footer>
+    Datenstand: <span id="datestamp2">–</span> · Token-Kurse: CoinGecko (täglich) · Payout-Raten: Storj-Doku (Annahmen, vor Start live prüfen).<br>
+    Modell-Annahmen: Storj Speicher $1,50/TB·Mon, Egress $2,00/TB, FX 1 $ ≈ 0,92 €. <b>Keine Anlageberatung</b> – Raten & Kurse ändern sich.
+  </footer>
+
+</div>
+
+<!-- ================= DATEN (Spiegel von data/history.json) ================= -->
+<script type="application/json" id="history-data">
+{
+  "_comment": "Tages-Snapshots des Storage-Node-Dashboards. Automation zieht Token-Kurse (CoinGecko) und schreibt Snapshots fort.",
+  "rates": { "storj_storage_usd_tb": 1.50, "storj_egress_usd_tb": 2.00, "fx_usd_eur": 0.92 },
+  "metricsMeta": {
+    "storj_usd":    { "label": "STORJ", "color": "#5b8cff" },
+    "siacoin_usd":  { "label": "Siacoin", "color": "#31d07a" },
+    "filecoin_usd": { "label": "Filecoin", "color": "#f5b73d" },
+    "arweave_usd":  { "label": "Arweave", "color": "#7c5cff" }
+  },
+  "snapshots": [
+    {
+      "date": "2026-08-28",
+      "note": "Basis-Snapshot.",
+      "metrics": { "storj_usd": 0.0397, "siacoin_usd": 0.000639, "filecoin_usd": 0.6979, "arweave_usd": 2.13 }
+    }
+  ]
+}
+</script>
+<script>
+(function () {
+  var data;
+  try { data = JSON.parse(document.getElementById('history-data').textContent); }
+  catch (e) { return; }
+  var snaps = (data.snapshots || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  var cur = snaps[snaps.length - 1] || { metrics: {} };
+  var rates = data.rates || { storj_storage_usd_tb: 1.5, storj_egress_usd_tb: 2.0, fx_usd_eur: 0.92 };
+  var meta = data.metricsMeta || {};
+
+  function fmt(v, d) { if (v == null || isNaN(v)) return 'n/v'; return Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+
+  // ---- Datum ----
+  document.getElementById('datestamp').textContent = cur.date || '–';
+  document.getElementById('datestamp2').textContent = cur.date || '–';
+
+  // ---- Token-Kurse KPI ----
+  function px(v) { return v == null ? 'n/v' : ('$' + Number(v).toLocaleString('de-DE', { minimumFractionDigits: v < 0.01 ? 6 : (v < 1 ? 4 : 2), maximumFractionDigits: v < 0.01 ? 6 : (v < 1 ? 4 : 2) })); }
+  document.getElementById('k-storj').textContent = px(cur.metrics.storj_usd);
+  document.getElementById('k-sia').textContent = px(cur.metrics.siacoin_usd);
+  document.getElementById('k-fil').textContent = px(cur.metrics.filecoin_usd);
+  document.getElementById('k-ar').textContent = px(cur.metrics.arweave_usd);
+  // Tagesdelta in foot
+  if (snaps.length >= 2) {
+    var prev = snaps[snaps.length - 2].metrics;
+    [['storj_usd', 'k-storj-d'], ['siacoin_usd', 'k-sia-d'], ['filecoin_usd', 'k-fil-d'], ['arweave_usd', 'k-ar-d']].forEach(function (p) {
+      var a = prev[p[0]], b = cur.metrics[p[0]];
+      if (a != null && b != null && a !== 0) {
+        var pct = (b - a) / a * 100;
+        var cls = pct > 0 ? 't-up' : (pct < 0 ? 't-down' : 't-flat');
+        var ar = pct > 0 ? '↑' : (pct < 0 ? '↓' : '→');
+        document.getElementById(p[1]).innerHTML = '<span class="trend ' + cls + '">' + ar + ' ' + (pct > 0 ? '+' : '') + fmt(pct, 1) + ' %</span> vs. Vortag';
+      }
+    });
+  }
+
+  // ---- Rechner ----
+  var el = function (id) { return document.getElementById(id); };
+  function calc() {
+    var cap = +el('n-cap').value || 0;
+    var fill = +el('i-fill').value || 0;
+    var egr = +el('i-egr').value || 0;
+    var pow = +el('n-pow').value || 0;
+    var elec = +el('n-elec').value || 0;
+    var stored = cap * fill / 100;
+    var egressTb = stored * egr / 100;
+    var storageUsd = stored * rates.storj_storage_usd_tb;
+    var egressUsd = egressTb * rates.storj_egress_usd_tb;
+    var grossEur = (storageUsd + egressUsd) * rates.fx_usd_eur;
+    var powerCost = pow * 24 * 30 / 1000 * elec;
+    var netEur = grossEur - powerCost;
+    el('l-cap').textContent = fmt(cap, 0);
+    el('l-fill').textContent = fmt(fill, 0);
+    el('l-egr').textContent = fmt(egr, 0);
+    el('l-stored').textContent = fmt(stored, 1);
+    el('o-net').textContent = fmt(netEur, 0);
+    el('o-storage').textContent = '$' + fmt(storageUsd, 2);
+    el('o-egress').textContent = '$' + fmt(egressUsd, 2);
+    el('o-gross').textContent = '≈ ' + fmt(grossEur, 2) + ' €';
+    el('o-power').textContent = '− ' + fmt(powerCost, 2) + ' €';
+    el('o-net2').textContent = '≈ ' + fmt(netEur, 2) + ' €';
+    el('o-year').textContent = '≈ ' + fmt(netEur * 12, 0) + ' €';
+  }
+  // sync slider <-> number
+  function bind(rangeId, numId) {
+    var r = el(rangeId), nn = numId ? el(numId) : null;
+    if (r) r.addEventListener('input', function () { if (nn) nn.value = r.value; calc(); });
+    if (nn) nn.addEventListener('input', function () { if (r) r.value = nn.value; calc(); });
+  }
+  bind('i-cap', 'n-cap'); bind('i-fill', null); bind('i-egr', null); bind('i-pow', 'n-pow');
+  el('n-cap').addEventListener('input', function () { el('i-cap').value = el('n-cap').value; calc(); });
+  el('n-pow').addEventListener('input', function () { el('i-pow').value = el('n-pow').value; calc(); });
+  el('n-elec').addEventListener('input', calc);
+  calc();
+
+  // ---- Kurzfazit-Zahlen (Storj, 0 € Strom) ----
+  function storjNet(cap, fillPct, egrPct) {
+    var stored = cap * fillPct / 100;
+    var g = (stored * rates.storj_storage_usd_tb + stored * egrPct / 100 * rates.storj_egress_usd_tb) * rates.fx_usd_eur;
+    return g;
+  }
+  el('kf-y1').textContent = fmt(storjNet(64, 25, 8), 0);
+  el('kf-full').textContent = fmt(storjNet(64, 100, 8), 0);
+
+  // ---- Trend-Chart (indexiert 100) ----
+  var series = Object.keys(meta).map(function (k) { return { key: k, name: meta[k].label, color: meta[k].color }; });
+  var trendEl = document.getElementById('trend-chart');
+  if (trendEl) {
+    var W = 800, H = 300, padL = 44, padR = 16, padT = 16, padB = 40, plotW = W - padL - padR, plotH = H - padT - padB;
+    var n = snaps.length;
+    // index each series to 100 at first snapshot
+    var idx = {};
+    series.forEach(function (se) {
+      var base = snaps[0].metrics[se.key];
+      idx[se.key] = snaps.map(function (s) { var v = s.metrics[se.key]; return (base && v != null) ? v / base * 100 : null; });
+    });
+    var allv = [];
+    Object.keys(idx).forEach(function (k) { idx[k].forEach(function (v) { if (v != null) allv.push(v); }); });
+    if (!allv.length) allv = [100];
+    var vmin = Math.min.apply(null, allv), vmax = Math.max.apply(null, allv);
+    if (vmin === vmax) { vmin -= 5; vmax += 5; }
+    var pad = (vmax - vmin) * 0.12; vmin -= pad; vmax += pad;
+    function xAt(i) { return n > 1 ? padL + i * plotW / (n - 1) : padL + plotW / 2; }
+    function yAt(v) { return padT + (vmax - v) / (vmax - vmin) * plotH; }
+    function dDM(s) { var p = s.split('-'); return p[2] + '.' + p[1]; }
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto" role="img" aria-label="Token-Kurs-Verlauf">';
+    for (var g = 0; g <= 4; g++) {
+      var yv = vmin + (vmax - vmin) * g / 4, yy = yAt(yv);
+      svg += '<line x1="' + padL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + yy.toFixed(1) + '" stroke="#26304a"/>';
+      svg += '<text x="' + (padL - 6) + '" y="' + (yy + 4).toFixed(1) + '" fill="#6b7899" font-size="11" text-anchor="end">' + fmt(yv, 0) + '</text>';
+    }
+    var step = Math.ceil(n / 12);
+    for (var i = 0; i < n; i++) { if (i % step !== 0 && i !== n - 1) continue; svg += '<text x="' + xAt(i).toFixed(1) + '" y="' + (H - padB + 18) + '" fill="#6b7899" font-size="11" text-anchor="middle">' + dDM(snaps[i].date) + '</text>'; }
+    series.forEach(function (se) {
+      var pts = [];
+      idx[se.key].forEach(function (v, i) { if (v != null) pts.push(xAt(i).toFixed(1) + ',' + yAt(v).toFixed(1)); });
+      if (pts.length) { svg += '<polyline fill="none" stroke="' + se.color + '" stroke-width="2.5" points="' + pts.join(' ') + '"/>'; pts.forEach(function (p) { var xy = p.split(','); svg += '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="3" fill="' + se.color + '"/>'; }); }
+    });
+    svg += '</svg>';
+    trendEl.innerHTML = svg;
+    document.getElementById('trend-legend').innerHTML = series.map(function (se) { return '<span><i style="background:' + se.color + '"></i>' + se.name + '</span>'; }).join('');
+    document.getElementById('trend-src').textContent = 'Tägliche Snapshots ' + snaps[0].date + ' → ' + snaps[n - 1].date + ' · ' + n + ' Tage · indexiert (100 = Start).';
+  }
+})();
+</script>
+</body>
+</html>
