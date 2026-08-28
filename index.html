@@ -233,21 +233,42 @@
 <!-- ================= DATEN (Spiegel von data/history.json) ================= -->
 <script type="application/json" id="history-data">
 {
-  "_comment": "Tages-Snapshots des Storage-Node-Dashboards. Automation zieht Token-Kurse (CoinGecko) und schreibt Snapshots fort.",
-  "rates": { "storj_storage_usd_tb": 1.50, "storj_egress_usd_tb": 2.00, "fx_usd_eur": 0.92 },
-  "metricsMeta": {
-    "storj_usd":    { "label": "STORJ", "color": "#5b8cff" },
-    "siacoin_usd":  { "label": "Siacoin", "color": "#31d07a" },
-    "filecoin_usd": { "label": "Filecoin", "color": "#f5b73d" },
-    "arweave_usd":  { "label": "Arweave", "color": "#7c5cff" }
-  },
-  "snapshots": [
-    {
-      "date": "2026-08-28",
-      "note": "Basis-Snapshot.",
-      "metrics": { "storj_usd": 0.0397, "siacoin_usd": 0.000639, "filecoin_usd": 0.6979, "arweave_usd": 2.13 }
-    }
-  ]
+    "_comment":  "Tages-Snapshots des Storage-Node-Dashboards. Automation zieht Token-Kurse (CoinGecko) und schreibt Snapshots fort. rates = Storj-Payout-Annahmen.",
+    "rates":  {
+                  "storj_storage_usd_tb":  1.50,
+                  "storj_egress_usd_tb":  2.00,
+                  "fx_usd_eur":  0.92
+              },
+    "metricsMeta":  {
+                        "storj_usd":  {
+                                          "label":  "STORJ",
+                                          "color":  "#5b8cff"
+                                      },
+                        "siacoin_usd":  {
+                                            "label":  "Siacoin",
+                                            "color":  "#31d07a"
+                                        },
+                        "filecoin_usd":  {
+                                             "label":  "Filecoin",
+                                             "color":  "#f5b73d"
+                                         },
+                        "arweave_usd":  {
+                                            "label":  "Arweave",
+                                            "color":  "#7c5cff"
+                                        }
+                    },
+    "snapshots":  [
+                      {
+                          "date":  "2026-08-28",
+                          "note":  "Automatischer Lauf.",
+                          "metrics":  {
+                                          "storj_usd":  0.039775,
+                                          "siacoin_usd":  0.000637,
+                                          "filecoin_usd":  0.697871,
+                                          "arweave_usd":  2.13
+                                      }
+                      }
+                  ]
 }
 </script>
 <script>
