@@ -143,6 +143,16 @@
                                           "filecoin_usd":  0.996259,
                                           "arweave_usd":  2.83
                                       }
+                      },
+                      {
+                          "date":  "2026-09-15",
+                          "note":  "Automatischer Lauf.",
+                          "metrics":  {
+                                          "storj_usd":  0.036808,
+                                          "siacoin_usd":  0.00089,
+                                          "filecoin_usd":  0.89233,
+                                          "arweave_usd":  2.69
+                                      }
                       }
                   ]
 }
