@@ -606,7 +606,7 @@
                       },
                       {
                           "date":  "2026-11-22",
-                          "note":  "Automatischer Lauf.",
+                          "note":  "Automatischer Lauf. CoinGecko nicht erreichbar - Kurse vom Vortag uebernommen.",
                           "metrics":  {
                                           "storj_usd":  0.013529,
                                           "siacoin_usd":  0.000574,
