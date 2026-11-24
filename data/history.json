@@ -613,6 +613,16 @@
                                           "filecoin_usd":  0.537529,
                                           "arweave_usd":  2.33
                                       }
+                      },
+                      {
+                          "date":  "2026-11-23",
+                          "note":  "Automatischer Lauf. CoinGecko nicht erreichbar - Kurse vom Vortag uebernommen.",
+                          "metrics":  {
+                                          "storj_usd":  0.013529,
+                                          "siacoin_usd":  0.000574,
+                                          "filecoin_usd":  0.537529,
+                                          "arweave_usd":  2.33
+                                      }
                       }
                   ]
 }
